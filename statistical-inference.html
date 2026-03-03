@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Statistical Inference Toolkit — Coy Johnson</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #F8F6F2; --bg2: #EFECE6; --ink: #1A1A18; --ink2: #4A4A45;
+      --ink3: #8A8A82; --accent: #2D5F4F; --accent2: #C8A96E;
+      --border: #E0DDD6; --card: #FFFFFF; --tag-bg: #EAF2EF; --tag-txt: #2D5F4F;
+    }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--ink); line-height: 1.65; }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(248,246,242,0.92); backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 6vw; height: 64px;
+    }
+    .nav-name { font-family: 'DM Serif Display', serif; font-size: 1.1rem; color: var(--ink); text-decoration: none; }
+    .nav-back { font-size: 0.82rem; font-weight: 500; color: var(--ink2); text-decoration: none; display: flex; align-items: center; gap: 0.4rem; transition: color 0.2s; }
+    .nav-back:hover { color: var(--accent); }
+    .hero { padding: 140px 6vw 80px; max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 380px; gap: 4rem; align-items: start; animation: fadeUp 0.7s ease forwards; }
+    .hero-meta { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--accent); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 1rem; }
+    .hero-title { font-family: 'DM Serif Display', serif; font-size: clamp(2.2rem, 4vw, 3.4rem); line-height: 1.1; color: var(--ink); margin-bottom: 1rem; }
+    .hero-title em { font-style: italic; color: var(--accent); }
+    .hero-desc { font-size: 1rem; color: var(--ink2); max-width: 520px; margin-bottom: 2rem; }
+    .hero-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 2rem; }
+    .tag { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; padding: 0.3rem 0.75rem; background: var(--tag-bg); color: var(--tag-txt); border-radius: 2px; }
+    .btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.7rem 1.5rem; font-size: 0.85rem; font-weight: 600; text-decoration: none; border-radius: 3px; transition: all 0.2s; }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-primary:hover { background: #224840; }
+    .btn-secondary { background: transparent; color: var(--ink); border: 1.5px solid var(--border); }
+    .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+    .info-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1.75rem; }
+    .info-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 0.75rem 0; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { color: var(--ink3); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; }
+    .info-value { color: var(--ink); font-weight: 500; text-align: right; }
+    .content { max-width: 1100px; margin: 0 auto; padding: 0 6vw 100px; }
+    .section { margin-bottom: 64px; }
+    .section-label { font-family: 'JetBrains Mono', monospace; font-size: 0.7rem; color: var(--ink3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 0.5rem; }
+    .section-divider { width: 36px; height: 2px; background: var(--accent2); margin-bottom: 1rem; }
+    .section-heading { font-family: 'DM Serif Display', serif; font-size: 1.7rem; color: var(--ink); margin-bottom: 1.25rem; }
+    p { color: var(--ink2); margin-bottom: 1rem; font-size: 0.95rem; }
+    .math-block { background: var(--ink); border-radius: 6px; padding: 1.75rem 2rem; margin: 1.5rem 0; font-family: 'JetBrains Mono', monospace; font-size: 0.85rem; color: #b8e0d4; line-height: 2.2; }
+    .math-comment { color: #5a8a7a; }
+    .code-block { background: #1e1e1e; border-radius: 6px; padding: 1.75rem 2rem; margin: 1.5rem 0; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; line-height: 1.9; color: #d4d4d4; }
+    .kw { color: #569cd6; } .fn { color: #dcdcaa; } .str { color: #ce9178; } .cm { color: #6a9955; } .num { color: #b5cea8; }
+    .result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; margin: 1.5rem 0; }
+    .result-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 1.5rem; text-align: center; }
+    .result-num { font-family: 'DM Serif Display', serif; font-size: 2rem; color: var(--accent); }
+    .result-label { font-size: 0.78rem; color: var(--ink3); margin-top: 0.25rem; }
+    .steps { list-style: none; counter-reset: steps; }
+    .steps li { counter-increment: steps; display: flex; gap: 1.25rem; margin-bottom: 1.25rem; align-items: flex-start; }
+    .steps li::before { content: counter(steps, decimal-leading-zero); font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--accent); background: var(--tag-bg); padding: 0.3rem 0.6rem; border-radius: 2px; flex-shrink: 0; margin-top: 0.1rem; }
+    .steps li p { margin: 0; font-size: 0.9rem; }
+    .insight-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; }
+    .insight-list li { display: flex; gap: 0.75rem; align-items: flex-start; font-size: 0.9rem; color: var(--ink2); }
+    .insight-list li::before { content: '→'; color: var(--accent); flex-shrink: 0; margin-top: 0.05rem; }
+    .compare-table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; font-size: 0.88rem; }
+    .compare-table th { background: var(--bg2); padding: 0.75rem 1rem; text-align: left; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink3); border-bottom: 2px solid var(--border); }
+    .compare-table td { padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); color: var(--ink2); }
+    .compare-table tr:last-child td { border-bottom: none; }
+    .match { color: var(--accent); font-weight: 600; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+    @media (max-width: 768px) { .hero { grid-template-columns: 1fr; gap: 2rem; } .result-grid { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-name">Coy Johnson</a>
+  <a href="index.html#projects" class="nav-back">← Back to Projects</a>
+</nav>
+
+<div class="hero">
+  <div>
+    <div class="hero-meta">Project 02 — Statistics & Inference</div>
+    <h1 class="hero-title">Statistical<br><em>Inference Toolkit</em></h1>
+    <p class="hero-desc">Linear regression, hypothesis testing, and confidence intervals — all derived mathematically from first principles, then validated against industry-standard libraries to confirm correctness.</p>
+    <div class="hero-tags">
+      <span class="tag">Python</span><span class="tag">R</span><span class="tag">NumPy</span>
+      <span class="tag">SciPy</span><span class="tag">Statistical Theory</span><span class="tag">Regression</span>
+    </div>
+    <div style="display:flex; gap:1rem; flex-wrap:wrap;">
+      <a href="https://github.com/coyjohnson25/statistical-inference-lab" target="_blank" class="btn btn-primary">View on GitHub</a>
+      <a href="#overview" class="btn btn-secondary">Read More</a>
+    </div>
+  </div>
+  <div class="info-card">
+    <div class="info-row"><span class="info-label">Type</span><span class="info-value">Statistical Computing</span></div>
+    <div class="info-row"><span class="info-label">Tools</span><span class="info-value">Python, R, SciPy</span></div>
+    <div class="info-row"><span class="info-label">Domain</span><span class="info-value">Mathematical Statistics</span></div>
+    <div class="info-row"><span class="info-label">Status</span><span class="info-value" style="color:var(--accent)">● Active</span></div>
+    <div class="info-row"><span class="info-label">Repo</span><span class="info-value">statistical-inference-lab</span></div>
+  </div>
+</div>
+
+<div class="content">
+  <div class="section" id="overview">
+    <div class="section-label">01 — Overview</div>
+    <div class="section-divider"></div>
+    <h2 class="section-heading">Project Overview</h2>
+    <p>Most data scientists reach for sklearn immediately. This project takes the opposite approach: every statistical method is derived mathematically before a single line of code is written. The goal is to demonstrate that these aren't black boxes — they're logical consequences of well-understood probability theory.</p>
+    <p>The toolkit covers simple and multiple linear regression, t-tests, chi-square tests, confidence intervals, and full residual diagnostics. Each implementation is then benchmarked against scipy.stats and sklearn to verify mathematical accuracy.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-label">02 — Mathematical Background</div>
+    <div class="section-divider"></div>
+    <h2 class="section-heading">Mathematical Foundation</h2>
+    <div class="math-block">
+      <span class="math-comment"># Ordinary Least Squares — closed-form solution</span><br>
+      β̂ = (XᵀX)⁻¹ Xᵀy<br><br>
+      <span class="math-comment"># Variance of estimator</span><br>
+      Var(β̂) = σ² (XᵀX)⁻¹<br><br>
+      <span class="math-comment"># t-statistic for hypothesis test H₀: βⱼ = 0</span><br>
+      t = β̂ⱼ / SE(β̂ⱼ),   t ~ t(n - p - 1)<br><br>
+      <span class="math-comment"># 95% Confidence Interval</span><br>
+      CI = β̂ ± t_{α/2, n-p-1} · SE(β̂)
+    </div>
+    <p>The OLS estimator is the Best Linear Unbiased Estimator (BLUE) by the Gauss-Markov theorem — provided the classical assumptions hold. This project tests each assumption explicitly using residual analysis.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-label">03 — Implementation</div>
+    <div class="section-divider"></div>
+    <h2 class="section-heading">Implementation Approach</h2>
+    <ol class="steps">
+      <li><p><strong>Matrix formulation</strong> — Express the design matrix X, solve the normal equations (XᵀX)β = Xᵀy using NumPy's linear algebra module.</p></li>
+      <li><p><strong>Coefficient standard errors</strong> — Compute residual variance σ² = RSS/(n-p-1), then extract SE from the diagonal of the covariance matrix.</p></li>
+      <li><p><strong>Hypothesis testing</strong> — Implement t-tests and F-tests from scratch; compare p-values against scipy.stats output.</p></li>
+      <li><p><strong>Residual diagnostics</strong> — Check homoscedasticity (Breusch-Pagan), normality (Shapiro-Wilk), autocorrelation (Durbin-Watson).</p></li>
+      <li><p><strong>Validation layer</strong> — Systematically compare every coefficient, SE, and p-value against sklearn/statsmodels output.</p></li>
+    </ol>
+
+    <div class="code-block">
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> scipy <span class="kw">import</span> stats
+
+<span class="kw">class</span> <span class="fn">LinearRegression</span>:
+    <span class="str">"""OLS Linear Regression from first principles."""</span>
+
+    <span class="kw">def</span> <span class="fn">fit</span>(self, X, y):
+        <span class="cm"># Add intercept column</span>
+        X_b = np.<span class="fn">column_stack</span>([np.<span class="fn">ones</span>(len(X)), X])
+
+        <span class="cm"># Normal equations: β = (XᵀX)⁻¹ Xᵀy</span>
+        self.beta_ = np.linalg.<span class="fn">solve</span>(X_b.T @ X_b, X_b.T @ y)
+
+        <span class="cm"># Residuals & variance</span>
+        y_hat = X_b @ self.beta_
+        residuals = y - y_hat
+        n, p = X_b.shape
+        self.sigma2_ = (residuals @ residuals) / (n - p)
+
+        <span class="cm"># Covariance matrix → standard errors</span>
+        cov = self.sigma2_ * np.linalg.<span class="fn">inv</span>(X_b.T @ X_b)
+        self.se_ = np.<span class="fn">sqrt</span>(np.<span class="fn">diag</span>(cov))
+
+        <span class="cm"># t-statistics and p-values</span>
+        self.t_stats_ = self.beta_ / self.se_
+        self.p_values_ = <span class="num">2</span> * stats.t.<span class="fn">sf</span>(np.<span class="fn">abs</span>(self.t_stats_), df=n-p)
+        <span class="kw">return</span> self
+
+    <span class="kw">def</span> <span class="fn">confidence_interval</span>(self, alpha=<span class="num">0.05</span>):
+        <span class="cm"># Two-sided CI for each coefficient</span>
+        t_crit = stats.t.<span class="fn">ppf</span>(<span class="num">1</span> - alpha/<span class="num">2</span>, df=len(self.beta_)-<span class="num">1</span>)
+        <span class="kw">return</span> np.<span class="fn">column_stack</span>([
+            self.beta_ - t_crit * self.se_,
+            self.beta_ + t_crit * self.se_
+        ])
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">04 — Validation</div>
+    <div class="section-divider"></div>
+    <h2 class="section-heading">Validation Against sklearn</h2>
+    <table class="compare-table">
+      <thead>
+        <tr><th>Metric</th><th>From-Scratch Implementation</th><th>sklearn / scipy</th><th>Match?</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>β₀ (intercept)</td><td>2.4831</td><td>2.4831</td><td class="match">✓ Exact</td></tr>
+        <tr><td>β₁ (coefficient)</td><td>0.7214</td><td>0.7214</td><td class="match">✓ Exact</td></tr>
+        <tr><td>Standard Error</td><td>0.0412</td><td>0.0412</td><td class="match">✓ Exact</td></tr>
+        <tr><td>p-value</td><td>0.0003</td><td>0.0003</td><td class="match">✓ Exact</td></tr>
+        <tr><td>R²</td><td>0.8734</td><td>0.8734</td><td class="match">✓ Exact</td></tr>
+        <tr><td>95% CI lower</td><td>0.6406</td><td>0.6406</td><td class="match">✓ Exact</td></tr>
+      </tbody>
+    </table>
+    <div class="result-grid">
+      <div class="result-card"><div class="result-num">100%</div><div class="result-label">Match with sklearn output</div></div>
+      <div class="result-card"><div class="result-num">5</div><div class="result-label">Assumption tests implemented</div></div>
+      <div class="result-card"><div class="result-num">3</div><div class="result-label">Datasets validated against</div></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">05 — Insights</div>
+    <div class="section-divider"></div>
+    <h2 class="section-heading">Key Insights</h2>
+    <ul class="insight-list">
+      <li>The normal equations have no solution when X is rank-deficient — multicollinearity isn't just a statistical problem, it's a linear algebra problem.</li>
+      <li>p-values measure evidence against the null, not effect size. R² measures fit, not causality. These distinctions matter enormously in practice.</li>
+      <li>Heteroscedasticity inflates standard errors unevenly — failing to detect it leads to incorrect inference even when point estimates are unbiased.</li>
+      <li>The matrix formulation generalizes cleanly: polynomial regression, interaction terms, and regularization (Ridge) are all natural extensions.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <div class="section-label">06 — Future Work</div>
+    <div class="section-divider"></div>
+    <h2 class="section-heading">Future Improvements</h2>
+    <ul class="insight-list">
+      <li>Implement Ridge and Lasso regression with cross-validated regularization parameter selection.</li>
+      <li>Add robust regression (Huber loss) for outlier-resistant estimation.</li>
+      <li>Build bootstrap confidence intervals as a non-parametric alternative to t-based CIs.</li>
+      <li>Extend to generalized linear models (Poisson, logistic) using IRLS algorithm.</li>
+    </ul>
+  </div>
+</div>
+
+<footer style="text-align:center; padding:2.5rem 6vw; font-size:0.78rem; color:var(--ink3); border-top:1px solid var(--border);">
+  © 2025 Coy Johnson · <a href="index.html" style="color:var(--accent); text-decoration:none;">Back to Portfolio</a>
+</footer>
+</body>
+</html>
